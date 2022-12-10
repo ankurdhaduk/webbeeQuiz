@@ -1,4 +1,13 @@
-import { QueryInterface } from 'sequelize';
+import { literal, QueryInterface } from 'sequelize';
+import {
+  addYears,
+  format,
+  subYears,
+  setMonth,
+  setDate,
+  setHours,
+} from 'date-fns'
+import { ModelAttributes } from 'sequelize/types/model';
 
 export default {
   /**
@@ -31,8 +40,119 @@ export default {
    * As a cinema owner I don't want to configure the seating for every show
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  up: (queryInterface: QueryInterface): Promise<void> => {
-    throw new Error('TODO: implement migration in task 4');
+  up: async (queryInterface: QueryInterface) => {
+    await queryInterface.createTable('User', {
+      uId: {
+        type: 'integer',
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      userName : {type:'varchar'},
+      mobNo: { type: 'varchar' },
+      emailId: { type: 'varchar' },
+      sex: { type: 'enum' },
+      createdAt: {
+        type: 'timestamp',
+        defaultValue: literal('CURRENT_TIMESTAMP'),
+      },
+      updatedAt: {
+        type: 'timestamp',
+        defaultValue: literal('CURRENT_TIMESTAMP'),
+      },
+    } as ModelAttributes)
+
+    await queryInterface.createTable('Movie', {
+      movieId: {
+        type: 'integer',
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      theaterId: {
+        type: 'integer',
+        allowNull: true,
+        references: {
+          model: {
+            tableName: 'Theater',
+          },
+          key: 'theaterId',
+        },
+        onDelete: 'cascade',
+      },
+      movieName : {type:'varchar'},
+      movieType: { type: 'varchar' },
+      movieStatus: { type: 'varchar' },
+      createdAt: {
+        type: 'timestamp',
+        defaultValue: literal('CURRENT_TIMESTAMP'),
+      },
+      updatedAt: {
+        type: 'timestamp',
+        defaultValue: literal('CURRENT_TIMESTAMP'),
+      },
+    } as ModelAttributes)
+
+    await queryInterface.createTable('Theater', {
+      theaterId: {
+        type: 'integer',
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      theaterName : {type:'varchar'},
+      address: { type: 'varchar' },
+      rating: { type: 'float' },
+      createdAt: {
+        type: 'timestamp',
+        defaultValue: literal('CURRENT_TIMESTAMP'),
+      },
+      updatedAt: {
+        type: 'timestamp',
+        defaultValue: literal('CURRENT_TIMESTAMP'),
+      },
+    } as ModelAttributes)
+
+    await queryInterface.createTable('Booking', {
+      bookingId: {
+        type: 'integer',
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      userId: {
+        type: 'integer',
+        allowNull: true,
+        references: {
+          model: {
+            tableName: 'User',
+          },
+          key: 'uId',
+        },
+        onDelete: 'cascade',
+      },
+      movieId: {
+        type: 'integer',
+        allowNull: true,
+        references: {
+          model: {
+            tableName: 'Movie',
+          },
+          key: 'movieId',
+        },
+        onDelete: 'cascade',
+      },
+      amount : {type:'integer'},
+      status_of_payment: { type: 'enum' },
+      booked_date: { type: 'date' },
+      movie_timing: { type: 'date' },
+      createdAt: {
+        type: 'timestamp',
+        defaultValue: literal('CURRENT_TIMESTAMP'),
+      },
+      updatedAt: {
+        type: 'timestamp',
+        defaultValue: literal('CURRENT_TIMESTAMP'),
+      },
+    } as ModelAttributes)
+
+    // throw new Error('TODO: implement migration in task 4');
   },
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
